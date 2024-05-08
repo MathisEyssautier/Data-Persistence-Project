@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class MainManager : MonoBehaviour
 {
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
+
+    public TextMeshProUGUI HSText;
+
+    public TextMeshProUGUI plyrName;
 
     public Text ScoreText;
     public GameObject GameOverText;
@@ -18,10 +23,13 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    
     // Start is called before the first frame update
     void Start()
-    {
+    {   
+        plyrName.text = $"{DataManager.Instance.playerName}";
+        DataManager.Instance.LoadHS();
+        HSText.text = $"Best score : {DataManager.Instance.currentHSName} : {DataManager.Instance.currentHS}";
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -55,6 +63,7 @@ public class MainManager : MonoBehaviour
         }
         else if (m_GameOver)
         {
+            
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -65,11 +74,17 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = $": {m_Points}";
     }
 
     public void GameOver()
     {
+        if (m_Points > DataManager.Instance.currentHS)
+        {
+            DataManager.Instance.currentHS = m_Points;
+            DataManager.Instance.currentHSName = plyrName.text;
+        }
+        DataManager.Instance.SaveHS();
         m_GameOver = true;
         GameOverText.SetActive(true);
     }
